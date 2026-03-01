@@ -56,15 +56,26 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Library API',
+      title: 'Campground Booking API',
       version: '1.0.0',
-      description: 'A simple Express VacQ API'
+      description: 'REST API for campground booking system with user authentication and role-based access'
     },
     servers: [
       {
-        url: `http://localhost:${PORT}/api/v1`
+        url: `http://localhost:${PORT}/api/v1`,
+        description: 'Development server'
       }
     ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'JWT token for authentication. Include in Authorization header as: Bearer <token>'
+        }
+      }
+    }
   },
   apis: ['./routes/*.js'],
 };
