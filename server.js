@@ -9,9 +9,7 @@ const { xss } = require('express-xss-sanitizer');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
-const hospitals = require('./routes/hospitals');
 const auth = require('./routes/auth');
-const appointments = require('./routes/appointments');
 const campgrounds = require('./routes/campgrounds');
 const bookings = require('./routes/bookings');
 
@@ -46,9 +44,7 @@ app.set('query parser', 'extended');
 connectDB();
 
 // routes
-app.use('/api/v1/hospitals', hospitals);
 app.use('/api/v1/auth', auth);
-app.use('/api/v1/appointments', appointments);
 app.use('/api/v1/campgrounds', campgrounds);
 app.use('/api/v1/bookings', bookings);
 
