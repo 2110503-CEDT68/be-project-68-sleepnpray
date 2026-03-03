@@ -1,0 +1,32 @@
+@startuml Sequence - Authentication
+
+title User Registration and Login Flow
+
+box "Authentication"
+participant "Client" as client
+participant "API Server" as server
+participant "AuthController" as authCtrl
+participant "User DB" as usersDB
+participant "JWT" as jwt
+end box
+
+== Registration ==
+client -> server: POST /auth/register\n{name, email, telephone, password}
+server -> authCtrl: register(req, res)
+authCtrl -> usersDB: User.create({...})
+usersDB -> authCtrl: newUser (password hashed)
+authCtrl -> jwt: getSignedJwtToken()
+jwt -> authCtrl: token
+authCtrl -> client: 201 {success, token}
+
+== Login ==
+client -> server: POST /auth/login\n{email, password}
+server -> authCtrl: login(req, res)
+authCtrl -> usersDB: User.findOne({email})
+usersDB -> authCtrl: user
+authCtrl -> authCtrl: matchPassword(enteredPassword)
+authCtrl -> jwt: getSignedJwtToken()
+jwt -> authCtrl: token
+authCtrl -> client: 200 {success, token}
+
+@enduml

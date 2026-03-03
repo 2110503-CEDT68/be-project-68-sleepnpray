@@ -1,0 +1,103 @@
+@startuml Class Diagram
+' Class Diagram for Campground Booking System
+
+package "Models" {
+  class User {
+    +ObjectId _id
+    +String name
+    +String email
+    +String telephone
+    +String role (enum: user, admin)
+    -String password (hashed)
+    +Date createdAt
+    --
+    +getSignedJwtToken(): String
+    +matchPassword(password): Boolean
+  }
+
+  class Campground {
+    +ObjectId _id
+    +String name (unique, max 50 chars)
+    +String address
+    +String tel
+    +Date createdAt
+  }
+
+  class Booking {
+    +ObjectId _id
+    +Date startDate
+    +Integer nights (min: 1, max: 3)
+    +ObjectId userId (FK)
+    +ObjectId campgroundId (FK)
+    +Date createdAt
+  }
+}
+
+package "Controllers" {
+  class AuthController {
+    +register(req, res)
+    +login(req, res)
+    +logout(req, res)
+    +getMe(req, res)
+  }
+
+  class CampgroundsController {
+    +getCampgrounds(req, res)
+    +getCampground(req, res)
+    +createCampground(req, res)
+    +updateCampground(req, res)
+    +deleteCampground(req, res)
+  }
+
+  class BookingsController {
+    +getBookings(req, res)
+    +getBooking(req, res)
+    +addBooking(req, res)
+    +updateBooking(req, res)
+    +deleteBooking(req, res)
+  }
+}
+
+package "Middleware" {
+  class AuthMiddleware {
+    +protect(req, res, next)
+    ' verifies Bearer JWT, attaches `req.user`, returns 401 if missing/invalid
+    +authorize(...roles)(req, res, next)
+    ' checks `req.user.role` against allowed roles, returns 403 if not allowed
+  }
+}
+
+' Relationships
+Booking --> User : references (userId)
+Booking --> Campground : references (campgroundId)
+
+AuthController --> User : manages
+CampgroundsController --> Campground : manages
+BookingsController --> Booking : manages
+BookingsController --> Campground : validates
+BookingsController --> User : authorizes
+
+AuthMiddleware -.-> User : validates JWT and loads user
+note top of AuthMiddleware
+  Applied as route-level middleware (used in routes/*.js)
+  Not applied globally; endpoints opt-in by adding `protect`/`authorize`.
+end note
+
+' Notes
+note right of Booking
+  A booking represents a campground
+  reservation by a user for 1-3 nights
+end note
+
+note right of User
+  Roles: 'user' (default) or 'admin'
+  Admins can CRUD campgrounds
+  and manage any bookings
+end note
+
+note right of CampgroundsController
+  Only admin can create/update/delete
+  Public can list/view campgrounds
+end note
+
+@enduml

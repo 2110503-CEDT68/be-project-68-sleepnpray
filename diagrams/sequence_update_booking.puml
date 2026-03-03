@@ -1,0 +1,54 @@
+@startuml
+title Sequence — Update Booking (Authenticated User/Admin)
+
+participant "Client/User" as client
+participant "API Server" as server
+participant "AuthMiddleware" as authMW
+participant "BookingsCtrl" as bookingCtrl
+participant "Booking DB" as bookingDB
+
+client -> server: PUT /bookings/{id}\nAuthorization: Bearer {token}\nBody: {startDate, nights}
+activate server
+
+server -> authMW: protect(req, res, next)
+activate authMW
+authMW -> authMW: verify JWT + load user
+authMW --> server: req.user populated
+deactivate authMW
+
+server -> authMW: authorize('admin', 'user')
+activate authMW
+alt Role valid
+  authMW --> server: pass
+else Invalid role
+  authMW --> server: 403
+end
+deactivate authMW
+
+server -> bookingCtrl: updateBooking(req, res)
+activate bookingCtrl
+
+bookingCtrl -> bookingDB: Booking.findById(id)
+activate bookingDB
+bookingDB --> bookingCtrl: booking or null
+deactivate bookingDB
+
+alt Booking found & (owner OR admin)
+  bookingCtrl -> bookingCtrl: validate nights (1-3)
+  bookingCtrl -> bookingDB: findByIdAndUpdate(...)
+  activate bookingDB
+  bookingDB --> bookingCtrl: updated
+  deactivate bookingDB
+else Booking not found
+  bookingCtrl -> bookingCtrl: return 404
+else Unauthorized
+  bookingCtrl -> bookingCtrl: return 403
+end
+
+bookingCtrl --> server: response
+deactivate bookingCtrl
+
+server --> client: 200/400/403/404
+deactivate server
+
+@enduml

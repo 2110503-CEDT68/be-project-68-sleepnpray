@@ -1,0 +1,39 @@
+@startuml
+title Sequence — Get Bookings for a Campground (Authenticated User/Admin)
+
+participant "Client/User" as client
+participant "API Server" as server
+participant "AuthMiddleware" as authMW
+participant "BookingsCtrl" as bookingCtrl
+participant "Booking DB" as bookingDB
+
+client -> server: GET /campgrounds/{campgroundId}/bookings\nAuthorization: Bearer {token}
+activate server
+
+server -> authMW: protect(req, res, next)
+activate authMW
+authMW -> authMW: verify JWT + load user
+authMW --> server: req.user populated
+deactivate authMW
+
+server -> bookingCtrl: getBookings(req, res, campgroundId)
+activate bookingCtrl
+
+alt User role: 'user'
+  bookingCtrl -> bookingCtrl: filter campground + user id
+else User role: 'admin'
+  bookingCtrl -> bookingCtrl: filter by campground only
+end
+
+bookingCtrl -> bookingDB: Booking.find(filter)
+activate bookingDB
+bookingDB --> bookingCtrl: [bookings]
+deactivate bookingDB
+
+bookingCtrl --> server: 200 {count, data: [...]}
+deactivate bookingCtrl
+
+server --> client: 200 response
+deactivate server
+
+@enduml

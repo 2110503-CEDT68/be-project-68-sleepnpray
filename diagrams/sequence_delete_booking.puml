@@ -1,0 +1,53 @@
+@startuml
+title Sequence — Delete Booking (Authenticated User/Admin)
+
+participant "Client/User" as client
+participant "API Server" as server
+participant "AuthMiddleware" as authMW
+participant "BookingsCtrl" as bookingCtrl
+participant "Booking DB" as bookingDB
+
+client -> server: DELETE /bookings/{id}\nAuthorization: Bearer {token}
+activate server
+
+server -> authMW: protect(req, res, next)
+activate authMW
+authMW -> authMW: verify JWT + load user
+authMW --> server: req.user populated
+deactivate authMW
+
+server -> authMW: authorize('admin', 'user')
+activate authMW
+alt Role valid
+  authMW --> server: pass
+else Invalid role
+  authMW --> server: 403
+end
+deactivate authMW
+
+server -> bookingCtrl: deleteBooking(req, res)
+activate bookingCtrl
+
+bookingCtrl -> bookingDB: Booking.findById(id)
+activate bookingDB
+bookingDB --> bookingCtrl: booking or null
+deactivate bookingDB
+
+alt Booking found & (owner OR admin)
+  bookingCtrl -> bookingDB: findByIdAndDelete(id)
+  activate bookingDB
+  bookingDB --> bookingCtrl: confirmed
+  deactivate bookingDB
+else Booking not found
+  bookingCtrl -> bookingCtrl: return 404
+else Unauthorized
+  bookingCtrl -> bookingCtrl: return 403
+end
+
+bookingCtrl --> server: response
+deactivate bookingCtrl
+
+server --> client: 200/403/404
+deactivate server
+
+@enduml

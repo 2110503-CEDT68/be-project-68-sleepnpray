@@ -1,0 +1,45 @@
+@startuml Sequence - Admin Campground Management
+
+title Admin Creating, Updating, and Deleting Campgrounds
+
+box "Admin Campground Management"
+participant "Admin Client" as adminClient
+participant "API Server" as srvr
+participant "CampgroundsCtrl" as cCtrl
+participant "AuthMW" as authM
+participant "Campground DB" as cDB
+end box
+
+== Create Campground ==
+adminClient -> srvr: POST /campgrounds\nBearerToken: {admin-token}\n{name, address, tel}
+srvr -> authM: protect(req, res, next)
+authM -> authM: verify JWT & role = admin
+authM -> srvr: authenticated
+srvr -> authM: authorize('admin')
+authM -> srvr: authorized ✓
+srvr -> cCtrl: createCampground(req, res)
+cCtrl -> cDB: Campground.create({...})
+cDB -> cCtrl: newCampground
+cCtrl -> adminClient: 201 {success, data: campground}
+
+== Update Campground ==
+adminClient -> srvr: PUT /campgrounds/{id}\nBearerToken: {admin-token}\n{name, address, tel}
+srvr -> authM: protect + authorize(admin)
+authM -> srvr: verified admin ✓
+srvr -> cCtrl: updateCampground(req, res)
+cCtrl -> cDB: Campground.findByIdAndUpdate(id, {...})
+cDB -> cCtrl: updatedCampground
+cCtrl -> adminClient: 200 {success, data: campground}
+
+== Delete Campground ==
+adminClient -> srvr: DELETE /campgrounds/{id}\nBearerToken: {admin-token}
+srvr -> authM: protect + authorize(admin)
+authM -> srvr: verified admin ✓
+srvr -> cCtrl: deleteCampground(req, res)
+cCtrl -> cDB: delete bookings for campground
+cDB -> cCtrl: all bookings removed ✓
+cCtrl -> cDB: Campground.deleteOne()
+cDB -> cCtrl: campground deleted ✓
+cCtrl -> adminClient: 200 {success, data: {}}
+
+@enduml

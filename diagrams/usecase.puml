@@ -1,0 +1,66 @@
+@startuml
+left to right direction
+
+actor Guest
+actor "Authenticated User" as AuthenticatedUser
+actor Admin
+
+rectangle "Authentication System" {
+    usecase "Register" as UC_Register
+    usecase "Login" as UC_Login
+    usecase "Logout" as UC_Logout
+}
+
+rectangle "Campground Booking System" {
+
+    
+
+    usecase "View Campgrounds" as UC_ViewCampgrounds
+
+    usecase "Create Booking (1-3 nights)" as UC_CreateBooking
+    usecase "View My Bookings" as UC_ViewMyBookings
+    usecase "Edit My Booking" as UC_EditMyBooking
+    usecase "Delete My Booking" as UC_DeleteMyBooking
+
+    usecase "Create Campground" as UC_CreateCampground
+    usecase "Update Campground" as UC_UpdateCampground
+    usecase "Delete Campground" as UC_DeleteCampground
+
+    usecase "View Any Booking" as UC_ViewAnyBooking
+    usecase "Edit Any Booking" as UC_EditAnyBooking
+    usecase "Delete Any Booking" as UC_DeleteAnyBooking
+}
+
+' Guest actions
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_ViewCampgrounds
+
+AuthenticatedUser <|-- Admin
+
+' Authenticated User actions
+AuthenticatedUser --> UC_Logout
+AuthenticatedUser --> UC_ViewCampgrounds
+AuthenticatedUser --> UC_CreateBooking
+AuthenticatedUser --> UC_ViewMyBookings
+AuthenticatedUser --> UC_EditMyBooking
+AuthenticatedUser --> UC_DeleteMyBooking
+
+' Admin actions
+UC_CreateCampground <-- Admin
+UC_UpdateCampground <-- Admin 
+UC_DeleteCampground <-- Admin
+UC_ViewAnyBooking <-- Admin
+UC_EditAnyBooking <-- Admin
+UC_DeleteAnyBooking <-- Admin
+
+' Include relationships
+note top of AuthenticatedUser
+  Must be logged in
+end note
+
+note right of UC_CreateCampground
+  Requires logged-in user with admin role
+end note
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+title Sequence — List All Bookings (Authenticated User/Admin)
+
+participant "Client/User" as client
+participant "API Server" as server
+participant "AuthMiddleware" as authMW
+participant "BookingsCtrl" as bookingCtrl
+participant "Booking DB" as bookingDB
+
+client -> server: GET /bookings\nAuthorization: Bearer {token}
+activate server
+
+server -> authMW: protect(req, res, next)
+activate authMW
+authMW -> authMW: verify JWT + load user
+authMW --> server: req.user populated
+deactivate authMW
+
+server -> bookingCtrl: getBookings(req, res)
+activate bookingCtrl
+
+alt User is 'user'
+  bookingCtrl -> bookingCtrl: filter by user id
+else User is 'admin'
+  bookingCtrl -> bookingCtrl: no filter, show all
+end
+
+bookingCtrl -> bookingDB: Booking.find(filter)
+activate bookingDB
+bookingDB --> bookingCtrl: [bookings]
+deactivate bookingDB
+
+bookingCtrl --> server: 200 {count, data: [...]}
+deactivate bookingCtrl
+
+server --> client: 200 response
+deactivate server
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+title Sequence — View Campgrounds (Public)
+
+== View All ==
+
+participant "Client" as client
+participant "API Server" as server
+participant "CampgroundsCtrl" as campCtrl
+participant "Campground DB" as campDB
+
+client -> server: GET /campgrounds\n(public, no auth required)
+activate server
+server -> campCtrl: getCampgrounds(req, res)
+activate campCtrl
+campCtrl -> campDB: Campground.find({})\nwith pagination
+activate campDB
+campDB --> campCtrl: [campgrounds]
+deactivate campDB
+campCtrl --> server: 200 {success: true, count, data: [campgrounds]}
+deactivate campCtrl
+server --> client: 200 {success: true, count, data: [campgrounds]}
+deactivate server
+
+== View ID ==
+
+participant "Client" as client
+participant "API Server" as server
+participant "CampgroundsCtrl" as campCtrl
+participant "Campground DB" as campDB
+
+client -> server: GET /campgrounds/{id}\n(public)
+activate server
+server -> campCtrl: getCampground(req, res)
+activate campCtrl
+campCtrl -> campDB: Campground.findById(id)
+activate campDB
+campDB --> campCtrl: campground or null
+deactivate campDB
+
+campCtrl --> server: 200 {success: true, data: campground}
+
+server --> client: 200/404 response
+deactivate campCtrl
+deactivate server
+
+@enduml
