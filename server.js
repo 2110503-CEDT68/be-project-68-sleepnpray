@@ -36,7 +36,26 @@ app.use(limiter);
 
 app.use(cookieParser());
 app.use(mongoSanitize());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://unpkg.com"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://unpkg.com"
+        ],
+        imgSrc: ["'self'", "data:"],
+      },
+    },
+  })
+);
 app.use(xss());
 
 
@@ -85,6 +104,7 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.get('/api-docs', (req, res) => {
   res.send(`
+    <!DOCTYPE html>
     <html>
       <head>
         <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
