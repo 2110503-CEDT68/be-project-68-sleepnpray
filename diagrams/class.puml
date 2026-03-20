@@ -78,6 +78,7 @@ BookingsController --> Campground : validates
 BookingsController --> User : authorizes
 
 AuthMiddleware -.-> User : validates JWT and loads user
+
 note top of AuthMiddleware
   Applied as route-level middleware (used in routes/*.js)
   Not applied globally; endpoints opt-in by adding `protect`/`authorize`.

@@ -5,8 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "test": "newman run test.json -e env.json",
+    "test:report": "newman run test.json -e env.json -r htmlextra"
   },
   "repository": {
     "type": "git",
