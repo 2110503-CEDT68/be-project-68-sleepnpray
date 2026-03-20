@@ -84,8 +84,9 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}/api/v1`,
-        description: 'Development server'
+        url: process.env.NODE_ENV === 'production'
+          ? 'https://backend-swprac-project.vercel.app/api/v1'
+          : `http://localhost:${PORT}/api/v1`,
       }
     ],
     components: {
