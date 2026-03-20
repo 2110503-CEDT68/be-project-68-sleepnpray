@@ -1,0 +1,6 @@
+node_modules
+newman
+*.puml
+drop-in-newmantest.zip
+.git
+.DS_Store

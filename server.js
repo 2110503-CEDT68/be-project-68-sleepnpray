@@ -22,6 +22,9 @@ dotenv.config({ path: './config/config.env' });
 
 const app = express();
 
+// trust proxy
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(express.json());
 
@@ -84,14 +87,18 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 
 
-const server = app.listen(
-  PORT,
-  console.log('Server running in ', process.env.NODE_ENV, ' mode on port ', PORT)
-);
+if (require.main === module) {
+  const server = app.listen(
+    PORT,
+    console.log('Server running in ', process.env.NODE_ENV, ' mode on port ', PORT)
+  );
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => process.exit(1));
-});
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`);
+    // Close server & exit process
+    server.close(() => process.exit(1));
+  });
+}
+
+module.exports = app;
