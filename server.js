@@ -83,8 +83,33 @@ const swaggerOptions = {
   apis: ['./routes/*.js'],
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+app.get('/api-docs', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
 
+        <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+
+        <script>
+          window.onload = () => {
+            SwaggerUIBundle({
+              url: window.location.origin + '/api-docs.json',
+              dom_id: '#swagger-ui'
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `);
+});
+
+app.get('/api-docs.json', (req, res) => {
+  res.json(swaggerDocs);
+});
 
 
 if (require.main === module) {
