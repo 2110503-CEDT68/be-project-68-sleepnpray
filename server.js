@@ -12,6 +12,7 @@ const swaggerUI = require('swagger-ui-express');
 const auth = require('./routes/auth');
 const campgrounds = require('./routes/campgrounds');
 const bookings = require('./routes/bookings');
+const uploads = require('./routes/uploads');
 
 
 
@@ -51,7 +52,7 @@ app.use(
           "'unsafe-inline'",
           "https://unpkg.com"
         ],
-        imgSrc: ["'self'", "data:"],
+        imgSrc: ["'self'", "data:", "*.public.blob.vercel-storage.com"],
       },
     },
   })
@@ -69,6 +70,7 @@ connectDB();
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/campgrounds', campgrounds);
 app.use('/api/v1/bookings', bookings);
+app.use('/api/v1/uploads', uploads);
 
 // setup server
 const PORT = process.env.PORT || 5000;
