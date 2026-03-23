@@ -15,6 +15,9 @@ const CampgroundSchema = new mongoose.Schema({
   },
   tel: {
     type: String
+  },
+  image: {
+    type: String
   }
 });
 
