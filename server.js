@@ -36,11 +36,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(cookieParser());
-app.use(
+/*app.use(
   mongoSanitize({
     allowDots: true, // THIS IS THE KEY: It stops the dots from triggering the "cleanup"
   })
-);
+);*/
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -61,11 +61,11 @@ app.use(
     },
   })
 );
-app.use(
+/*app.use(
   xss({
     allowedKeys: ['image'] // This prevents the sanitizer from touching your URL
   })
-);
+);*/
 
 
 
