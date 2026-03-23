@@ -36,7 +36,12 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(cookieParser());
-app.use(mongoSanitize());
+app.use(
+  mongoSanitize({
+    allowDots: true, // THIS IS THE KEY: It stops the dots from triggering the "cleanup"
+    replaceWith: '_', // If a $ is found, replace it instead of deleting the whole string
+  })
+);
 app.use(
   helmet({
     contentSecurityPolicy: {
