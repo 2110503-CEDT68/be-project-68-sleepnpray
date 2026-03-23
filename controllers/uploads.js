@@ -17,6 +17,7 @@ exports.uploadImage = async (req, res, next) => {
     // Upload to Vercel Blob
     const blob = await put(req.file.originalname, req.file.buffer, {
       access: 'public', // Makes it viewable publicly
+      addRandomSuffix: true
     });
 
     res.status(200).json({
