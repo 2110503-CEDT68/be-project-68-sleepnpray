@@ -39,7 +39,6 @@ app.use(cookieParser());
 app.use(
   mongoSanitize({
     allowDots: true, // THIS IS THE KEY: It stops the dots from triggering the "cleanup"
-    replaceWith: '_', // If a $ is found, replace it instead of deleting the whole string
   })
 );
 app.use(
@@ -62,7 +61,11 @@ app.use(
     },
   })
 );
-app.use(xss());
+app.use(
+  xss({
+    allowedKeys: ['image'] // This prevents the sanitizer from touching your URL
+  })
+);
 
 
 
