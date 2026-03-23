@@ -6,12 +6,12 @@ exports.getBookings = async (req, res, next) => {
   try {
     let query;
     if (req.user.role !== 'admin') {
-      query = Booking.find({ user: req.user.id }).populate({ path: 'campground', select: 'name address tel' });
+      query = Booking.find({ user: req.user.id }).populate({ path: 'campground', select: 'name address tel image' });
     } else {
       if (req.query.campgroundId) {
-        query = Booking.find({ campground: req.query.campgroundId }).populate({ path: 'campground', select: 'name address tel' });
+        query = Booking.find({ campground: req.query.campgroundId }).populate({ path: 'campground', select: 'name address tel image' });
       } else {
-        query = Booking.find().populate({ path: 'campground', select: 'name address tel' });
+        query = Booking.find().populate({ path: 'campground', select: 'name address tel image' });
       }
     }
 
@@ -25,7 +25,7 @@ exports.getBookings = async (req, res, next) => {
 
 exports.getBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findById(req.params.id).populate({ path: 'campground', select: 'name address tel' });
+    const booking = await Booking.findById(req.params.id).populate({ path: 'campground', select: 'name address tel image' });
     if (!booking) {
       return res.status(404).json({ success: false, message: `No booking with the id of ${req.params.id}` });
     }
