@@ -1,23 +1,29 @@
-const { put, del } = require('@vercel/blob');
+const { put } = require('@vercel/blob');
+const crypto = require('crypto');
+const path = require('path');
 
-/**
- * @desc    Upload image to Vercel Blob
- * @route   POST /api/v1/uploads
- * @access  Private/Admin
- */
 exports.uploadImage = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload a file'
-      });
+      return res.status(400).json({ success: false, message: 'No file' });
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(req.file.originalname, req.file.buffer, {
-      access: 'public', // Makes it viewable publicly
-      addRandomSuffix: true
+    // 1. Generate SHA-256 Hash of the buffer
+    const hash = crypto
+      .createHash('sha256')
+      .update(req.file.buffer)
+      .digest('hex');
+
+    // 2. Keep the original extension
+    const ext = path.extname(req.file.originalname);
+    const hashedFilename = `${hash}${ext}`;
+
+    // 3. Upload to Vercel
+    // We set addRandomSuffix: false because the hash IS the unique ID
+    const blob = await put(hashedFilename, req.file.buffer, {
+      access: 'public',
+      addRandomSuffix: false, 
+      allowOverwrite: true, // Safe here because same hash = same content
     });
 
     res.status(200).json({
@@ -26,10 +32,7 @@ exports.uploadImage = async (req, res, next) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to upload image'
-    });
+    res.status(500).json({ success: false, message: 'Upload failed' });
   }
 };
 
