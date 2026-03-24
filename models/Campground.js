@@ -13,12 +13,16 @@ const CampgroundSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add an address']
   },
+  price: {
+    type: Number
+  },
   tel: {
     type: String
   },
   image: {
     type: String
   }
+
 });
 
 module.exports = mongoose.model('Campground', CampgroundSchema);
